@@ -151,7 +151,7 @@ export default function AdminPage() {
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from("11-wins player photos").getPublicUrl(fileName);
+    const { data: { publicUrl } } = supabase.storage.from("playerphotos").getPublicUrl(fileName);
     setFormData({ ...formData, photo: publicUrl });
     setUploading(false);
   }
