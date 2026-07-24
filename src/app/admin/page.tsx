@@ -153,7 +153,7 @@ export default function AdminPage() {
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
-      .from("11-wins player photos")
+      .from("playerphotos")
       .upload(fileName, file, { cacheControl: "3600", upsert: false });
 
     if (uploadError) {
@@ -162,7 +162,7 @@ export default function AdminPage() {
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from("11-wins player photos").getPublicUrl(fileName);
+    const { data: { publicUrl } } = supabase.storage.from("playerphotos").getPublicUrl(fileName);
     setFormData({ ...formData, photo: publicUrl });
     setUploading(false);
   }
