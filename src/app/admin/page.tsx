@@ -92,13 +92,19 @@ export default function AdminPage() {
       console.error("Error fetching players:", error);
       alert("Failed to load players: " + error.message);
     } else {
+      console.log("Fetched players:", data);
       setPlayers(data || []);
     }
     setLoading(false);
   }
 
   async function handleDelete(id: string) {
+    if (!id) {
+      alert("Error: Player ID is missing");
+      return;
+    }
     if (!confirm("Are you sure you want to delete this player?")) return;
+    
     const { error } = await supabase.from("players").delete().eq("id", id);
     if (error) {
       alert("Failed to delete: " + error.message);
@@ -108,6 +114,11 @@ export default function AdminPage() {
   }
 
   function handleEdit(player: Player) {
+    if (!player.id) {
+      alert("Error: This player has no ID. Try refreshing the page.");
+      return;
+    }
+    console.log("Editing player:", player);
     setEditingPlayer(player);
     setFormData({
       name: player.name,
@@ -151,13 +162,19 @@ export default function AdminPage() {
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from("playerphotos").getPublicUrl(fileName);
+    const { data: { publicUrl } } = supabase.storage.from("11-wins player photos").getPublicUrl(fileName);
     setFormData({ ...formData, photo: publicUrl });
     setUploading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (editingPlayer && !editingPlayer.id) {
+      alert("Error: Cannot update — player ID is missing");
+      return;
+    }
+
     const playerData = {
       name: formData.name,
       club: formData.club,
@@ -173,6 +190,7 @@ export default function AdminPage() {
     };
 
     if (editingPlayer) {
+      console.log("Updating player with ID:", editingPlayer.id);
       const { error } = await supabase.from("players").update(playerData).eq("id", editingPlayer.id);
       if (error) {
         alert("Failed to update: " + error.message);
