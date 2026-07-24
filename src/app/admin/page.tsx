@@ -138,7 +138,13 @@ export default function AdminPage() {
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
+    
+    console.log("File selected:", file.name, "Size:", file.size, "Type:", file.type);
+    
     if (!file.type.startsWith("image/")) {
       alert("Please upload an image file");
       return;
@@ -162,10 +168,15 @@ export default function AdminPage() {
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from("playerphotos").getPublicUrl(fileName);
-    setFormData({ ...formData, photo: publicUrl });
+        const { data: urlData } = supabase.storage.from("playerphotos").getPublicUrl(fileName);
+    
+    console.log("Upload success, URL:", urlData?.publicUrl);
+    
+    if (urlData?.publicUrl) {
+      setFormData(prev => ({ ...prev, photo: urlData.publicUrl }));
+    }
+    
     setUploading(false);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
