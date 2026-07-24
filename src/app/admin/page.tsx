@@ -157,26 +157,38 @@ export default function AdminPage() {
     setUploading(true);
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    
+    console.log("Uploading as:", fileName);
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data: uploadData } = await supabase.storage
       .from("playerphotos")
       .upload(fileName, file, { cacheControl: "3600", upsert: false });
 
+    console.log("Upload result:", { uploadError, uploadData });
+
     if (uploadError) {
+      console.error("Upload error:", uploadError);
       alert("Upload failed: " + uploadError.message);
       setUploading(false);
       return;
     }
 
-        const { data: urlData } = supabase.storage.from("playerphotos").getPublicUrl(fileName);
-    
-    console.log("Upload success, URL:", urlData?.publicUrl);
-    
+    const { data: urlData } = supabase.storage
+      .from("playerphotos")
+      .getPublicUrl(fileName);
+
+    console.log("URL data:", urlData);
+
     if (urlData?.publicUrl) {
+      console.log("Setting photo URL:", urlData.publicUrl);
       setFormData(prev => ({ ...prev, photo: urlData.publicUrl }));
+    } else {
+      console.error("No publicUrl returned");
+      alert("Failed to get image URL");
     }
     
     setUploading(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
